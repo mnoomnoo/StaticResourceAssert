@@ -1,0 +1,49 @@
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include <cstdint>
+#include <string_view>
+
+namespace sra {
+
+constexpr uint64_t __api_array_${ArrayID}_size = ${ArraySize};
+constexpr uint64_t __api_array_${ArrayID}_row_size = ${ArrayRowSize};
+constexpr uint64_t __api_array_${ArrayID}_col_size = ${ArrayColSize};
+const constexpr char* const __api_array_${ArrayID}[__api_array_${ArrayID}_row_size][__api_array_${ArrayID}_col_size] = {
+	${ResourceFiles}
+};
+
+template<uint64_t row, uint64_t col>
+constexpr bool __static_find_row(std::string_view resourceNameStr) {
+	if constexpr ( __api_array_${ArrayID}_col_size == col )
+		return false;
+	else
+		return resourceNameStr == __api_array_${ArrayID}[row][col] || __static_find_row<row, col+1>(resourceNameStr);
+}
+template<uint64_t row, uint64_t col>
+constexpr bool __static_find(std::string_view resourceNameStr) {
+	if constexpr ( __api_array_${ArrayID}_row_size == row )
+		return false;
+	else {
+		return __static_find_row<row, col>(resourceNameStr) || __static_find<row+1,col>(resourceNameStr);
+	}
+}
+
+} // namespace sra
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////// STATIC RESOURCE ASSERT API
+
+#define STATIC_RESOURCE_ASSERT( s ) static_assert( sra::__static_find<0,0>(u8 ## s) )
+
+#define STATIC_RESOURCE_ASSERT_MSG( s, msg ) static_assert( sra::__static_find<0,0>(u8 ## s), msg )
+
+#define STATIC_RESOURCE_FIND( s ) sra::__static_find<0,0>(u8 ## s)
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+#define DYNAMIC_RESOURCE_FIND( s ) sra::__dynamic_find(s)
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+
