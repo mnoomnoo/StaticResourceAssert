@@ -21,11 +21,11 @@ This project is just an experiment. Its use cases are probably minimal at best. 
 Include the generated header to get the static assert API.
 
 ### API reference
-`STATIC_RESOURCE_ASSERT("file_or_directory")` Statically asserts that the file or directory path is in the API header
+`STATIC_RESOURCE_ASSERT("file_or_directory")` Statically asserts that the file or directory path is in the API header.
 
 `STATIC_RESOURCE_ASSERT_MSG("file_or_directory", "assert message")`  Statically asserts that the file or directory path is in the API header. Custom assert message is printed if assert fails.
 
-`STATIC_RESOURCE_FIND("file_or_directory")`
+`STATIC_RESOURCE_FIND("file_or_directory")` Statically searches for `file_or_directory` and returns true if the file or directory was found, else false.
 
 Example:
 ```c++
