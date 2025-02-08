@@ -31,13 +31,16 @@ Example:
 ```c++
 STATIC_RESOURCE_ASSERT("dir0/file0");
 STATIC_RESOURCE_ASSERT("dir0/file1");
+STATIC_RESOURCE_ASSERT("dir0/other_dir");
 
 STATIC_RESOURCE_ASSERT_MSG("dir0/file0", "file 0 not found!");
 STATIC_RESOURCE_ASSERT_MSG("dir0/file1", "file 1 not found!");
+STATIC_RESOURCE_ASSERT_MSG("dir0/other_dir", "other_dir not found!");
 
 constexpr bool val_true = STATIC_RESOURCE_FIND("dir0/file0");
 constexpr bool val_false = STATIC_RESOURCE_FIND("dir0/file5");
-
+constexpr bool val_true = STATIC_RESOURCE_FIND("dir0/other_dir");
+constexpr bool val_false = STATIC_RESOURCE_FIND("dir0/other_dir123");
 ```
 
 # Building

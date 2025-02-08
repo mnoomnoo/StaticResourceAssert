@@ -337,3 +337,4 @@ build/
 
 large_dir_output_api.h
 static_resource_assert_api.h
+.vscode
