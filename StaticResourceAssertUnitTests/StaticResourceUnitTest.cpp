@@ -36,8 +36,6 @@ TEST_CASE( "StaticResourceAssert Test" )
 
 	SECTION("STATIC_RESOURCE_FIND_utf8")
 	{
-		constexpr bool val = STATIC_RESOURCE_FIND("こんにちは世界.txt");
-		STATIC_REQUIRE(val);
 		STATIC_REQUIRE(STATIC_RESOURCE_FIND("こんにちは世界.txt"));
 		STATIC_REQUIRE(STATIC_RESOURCE_FIND("πfs.c"));
 	};

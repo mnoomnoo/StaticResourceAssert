@@ -2,7 +2,7 @@
 
 #include <filesystem>
 #include <fstream>
-
+#include <algorithm>
 
 
 ////////////////////////
@@ -69,6 +69,8 @@ int main( int argc, char** argv )
 		replace_all( pathPathStr, resourceDir.path().string() + "/", "" );
 		arrayItems.push_back( pathPathStr );
 	}
+
+	std::sort(arrayItems.begin(), arrayItems.end());
 
 	PSTREAM_NL( "Directory elements found: " << arrayItems.size() );
 
