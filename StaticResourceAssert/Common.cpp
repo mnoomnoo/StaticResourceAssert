@@ -20,7 +20,7 @@
 
 NOTE: 0.0.YYYYMMDD should only be in the main branch. Its a non-release version number
 */
-const char* SRA_PROGRAM_VERSION = "0.0.20250215";
+const char* SRA_PROGRAM_VERSION = "0.0.20250216";
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
