@@ -46,6 +46,17 @@ jobs:
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ./StaticResourceAssertUnitTests
 
+    - name: Create release artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: sra-release
+        path: |
+            Readme.md
+            License.txt
+            build/StaticResourceAssert/sra
+            StaticResourceAssert/*
+        retention-days: 1
+
   build-windows:
     # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
     # You can convert this to a matrix build if you need cross-platform coverage.
@@ -80,3 +91,13 @@ jobs:
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: .\Release\StaticResourceAssertUnitTests.exe
 
+    - name: Create release artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: sra-release
+        path: |
+            Readme.md
+            License.txt
+            build\Release\StaticResourceAssert\sra.exe
+            StaticResourceAssert\*
+        retention-days: 1
