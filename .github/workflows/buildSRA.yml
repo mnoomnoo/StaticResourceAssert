@@ -46,6 +46,10 @@ jobs:
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ./StaticResourceAssertUnitTests
 
+    - name: Create build directories
+      run: |
+        cp build/StaticResourceAssert/sra .
+
     - name: Create release artifact
       uses: actions/upload-artifact@v4
       with:
@@ -53,8 +57,8 @@ jobs:
         path: |
             Readme.md
             License.txt
-            build/StaticResourceAssert/sra
-            StaticResourceAssert/*
+            sra
+            StaticResourceAssert/templates/*
         retention-days: 1
 
   build-windows:
@@ -91,6 +95,10 @@ jobs:
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: .\Release\StaticResourceAssertUnitTests.exe
 
+    - name: Create build directories
+      run: |
+        cp build\Release\StaticResourceAssert\sra.exe .
+
     - name: Create release artifact
       uses: actions/upload-artifact@v4
       with:
@@ -98,6 +106,6 @@ jobs:
         path: |
             Readme.md
             License.txt
-            build\Release\StaticResourceAssert\sra.exe
-            StaticResourceAssert\*
+            sra.exe
+            StaticResourceAssert\templates\*
         retention-days: 1
