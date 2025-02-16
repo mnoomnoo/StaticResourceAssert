@@ -97,7 +97,7 @@ jobs:
 
     - name: Create build directories
       run: |
-        cp build\Release\StaticResourceAssert\sra.exe .
+        cp build\StaticResourceAssert\Release\sra.exe .
 
     - name: Create release artifact
       uses: actions/upload-artifact@v4
