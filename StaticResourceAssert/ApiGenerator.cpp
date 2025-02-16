@@ -4,17 +4,16 @@
 
 #include <chrono>
 #include <fstream>
-#include <cmath>
+#include <iomanip>
 
-
-std::string GenerateAPIHeaderString( const std::vector<std::string>& arrayItems )
+std::string GenerateAPIHeaderString( const std::string_view& directoryCataloged, const std::vector<std::string>& arrayItems )
 {
 	if (arrayItems.empty())
 		return std::string();
 
 	std::ifstream inputFile("StaticResourceAssert/templates/static_resource_assert_api.ht");
 	if(!inputFile) {
-		return "";
+		return std::string();
 	}
 
 	std::stringstream buffer;
@@ -45,18 +44,26 @@ std::string GenerateAPIHeaderString( const std::vector<std::string>& arrayItems 
 			arrayElements += "\n";
 		}
 	}
+	// generate information about the generation
+    auto now = std::chrono::system_clock::now();
+    std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+    std::tm local_tm = *std::localtime(&now_time);
+
+	std::ostringstream oss;
+	oss << "SRA version: " << SRA_PROGRAM_VERSION << std::endl;
+	oss << "Generation date: " << std::put_time(&local_tm, "%Y-%m-%d %H:%M:%S") << std::endl;
+	oss << "Directory cataloged: " << directoryCataloged << std::endl;
+	oss << "Number of items found: " << numOfItems << std::endl;
 
 	replace_all(headerString, "${ResourceFiles}", arrayElements);
 	replace_all(headerString, "${ArraySize}", std::to_string(numOfItems));
-
-    // Get current time from system clock
-    auto now = std::chrono::system_clock::now();
+	replace_all(headerString, "${GenerationComment}", oss.str());
 
     // Get the duration since the Unix epoch in milliseconds
-    auto duration = now.time_since_epoch();
+    const auto duration = now.time_since_epoch();
 
     // Convert duration to milliseconds
-    auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+    const auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
 
 	replace_all(headerString, "${ArrayID}", std::to_string(milliseconds));
 

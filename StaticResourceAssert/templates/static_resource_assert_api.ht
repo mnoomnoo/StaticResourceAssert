@@ -1,8 +1,9 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+${GenerationComment}
+*/
 
-// #include <cstdint>
-// #include <cstring>
 #include <string_view>
 
 namespace sra {
@@ -20,15 +21,14 @@ constexpr bool __static_find(const std::string_view target) {
         size_t mid = left + (right - left) / 2;
 
         if (std::string_view(__api_array_${ArrayID}[mid]) == target) {
-            return true;  // Found the target string at index 'mid'
+            return true;
         } else if (std::string_view(__api_array_${ArrayID}[mid]) < target) {
-            left = mid + 1;  // Target is in the right half
+            left = mid + 1;
         } else {
-            right = mid - 1;  // Target is in the left half
+            right = mid - 1;
         }
     }
-
-    return false;  // Target not found
+    return false;
 }
 
 } // namespace sra

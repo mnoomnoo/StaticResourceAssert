@@ -6,6 +6,6 @@
 
 ////////////////////////////////////////////////////////////////////////
 
-std::string GenerateAPIHeaderString( const std::vector<std::string>& arrayItems );
+std::string GenerateAPIHeaderString( const std::string_view& directoryCataloged, const std::vector<std::string>& arrayItems );
 
 #endif

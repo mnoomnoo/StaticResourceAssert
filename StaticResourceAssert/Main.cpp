@@ -21,7 +21,7 @@ constexpr const char* helpFile =
 int main( int argc, char** argv )
 {
 	std::string versionStr = "\nStatic Resource Assert V: ";
-	versionStr += _PROGRAM_VERSION;
+	versionStr += SRA_PROGRAM_VERSION;
 	versionStr += "\n\n";
 
 	PSTREAM( versionStr.c_str() );
@@ -76,7 +76,7 @@ int main( int argc, char** argv )
 
 	PSTREAM_NL( "Generating " << outputHeaderStr << " ..." );
 
-	const std::string apiHeader = GenerateAPIHeaderString(arrayItems);
+	const std::string apiHeader = GenerateAPIHeaderString(directoryStr, arrayItems);
 	if(apiHeader.empty()) {
 		PSTREAM_NL( "Error: Failed to generate API");
 		return -3;
