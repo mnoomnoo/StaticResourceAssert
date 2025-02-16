@@ -33,6 +33,10 @@ TEST_CASE( "StaticResourceAssert Test" )
 
 		STATIC_REQUIRE_FALSE(STATIC_RESOURCE_FIND("richText1234234234234.rtf"));
 		STATIC_REQUIRE_FALSE(STATIC_RESOURCE_FIND("subRes/Test/texture134234 - Copy222.bmp"));
+
+		if constexpr (false == STATIC_RESOURCE_FIND("subRes/Test")) {
+			FAIL();
+		}
 	};
 
 	SECTION( "STATIC_RESOURCE_ASSERT" )
