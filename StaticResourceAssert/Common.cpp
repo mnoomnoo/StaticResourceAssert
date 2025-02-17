@@ -1,6 +1,8 @@
 
 #include "include/Common.h"
 
+#include <cctype>
+
 #ifdef _WIN32
 #include "Windows.h"
 #endif
@@ -57,6 +59,27 @@ std::size_t replace_all(std::string& inout, std::string_view what, std::string_v
 		inout.replace(pos, what.length(), with.data(), with.length());
 	}
 	return count;
+}
+
+void TrimStartWhitespace(std::string& inout) {
+	if(inout.empty()) {
+		return;
+	}
+	auto beginIter = inout.begin();
+	while(inout.end() != beginIter && std::isspace(*beginIter)) {
+		beginIter = inout.erase(beginIter);
+	}	
+}
+
+void TrimEndWhitespace(std::string& inout) {
+	if(inout.empty()) {
+		return;
+	}
+	auto endIter = inout.end()-1;
+	while(inout.end() != endIter && std::isspace(*endIter)) {
+		inout.pop_back();
+		endIter--;
+	}
 }
 
 bool HasArg( const char* argStr, int argc, char** argv )

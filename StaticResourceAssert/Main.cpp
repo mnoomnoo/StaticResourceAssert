@@ -40,6 +40,16 @@ int main( int argc, char** argv )
 
 	std::string directoryStr = GetArgData( "-d", argc, argv );
 	replace_all( directoryStr, "\\", "/" );
+	replace_all( directoryStr, "\\", "" );
+	replace_all( directoryStr, "<", "" );
+	replace_all( directoryStr, ">", "" );
+	replace_all( directoryStr, "\"", "" );
+	replace_all( directoryStr, "|", "" );
+	replace_all( directoryStr, "?", "" );
+	replace_all( directoryStr, "*", "" );
+
+	TrimStartWhitespace(directoryStr);
+	TrimEndWhitespace(directoryStr);
 
 	std::string outputHeaderStr = "static_resource_assert_api.h";
 	if( HasArg( "-o", argc, argv ) )
