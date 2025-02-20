@@ -22,7 +22,7 @@
 
 NOTE: 0.0.YYYYMMDD should only be in the main branch. Its a non-release version number
 */
-const char* SRA_PROGRAM_VERSION = "0.0.20250216";
+const char* SRA_PROGRAM_VERSION = "0.0.20250219";
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -68,7 +68,7 @@ void TrimStartWhitespace(std::string& inout) {
 	auto beginIter = inout.begin();
 	while(inout.end() != beginIter && std::isspace(*beginIter)) {
 		beginIter = inout.erase(beginIter);
-	}	
+	}
 }
 
 void TrimEndWhitespace(std::string& inout) {

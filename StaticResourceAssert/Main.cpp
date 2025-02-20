@@ -4,6 +4,7 @@
 #include <fstream>
 #include <algorithm>
 
+namespace fs = std::filesystem;
 
 ////////////////////////
 
@@ -57,22 +58,21 @@ int main( int argc, char** argv )
 		outputHeaderStr = GetArgData( "-o", argc, argv );
 	}
 
-	const std::filesystem::path dirPath { directoryStr };
-	if( !std::filesystem::exists(dirPath) ) {
+	const fs::path dirPath { directoryStr };
+	if( !fs::exists(dirPath) ) {
 		PSTREAM_NL( "Directory: " << directoryStr << " doesn't exist" );
 		return -2;
 	}
 
 	PSTREAM_NL( "Indexing directory: " << directoryStr << " ..." );
 
-	std::filesystem::directory_entry resourceDir(dirPath);
+	fs::directory_entry resourceDir(dirPath);
 
+	std::error_code ec;
 	std::vector<std::string> arrayItems;
-	for( const std::filesystem::directory_entry& dirEntry : std::filesystem::recursive_directory_iterator{resourceDir, std::filesystem::directory_options::skip_permission_denied} )
+	for( const fs::directory_entry& dirEntry : fs::recursive_directory_iterator{resourceDir, fs::directory_options::skip_permission_denied, ec} )
 	{
-		std::filesystem::path dirPath = dirEntry.path();
-
-		std::string pathPathStr = dirPath.u8string();
+		std::string pathPathStr = dirEntry.path().u8string();
 
 		replace_all( pathPathStr, "\\", "/" );
 
