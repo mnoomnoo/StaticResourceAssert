@@ -20,6 +20,9 @@ void __pstream(const std::ostream &t, bool bNewline = true );
 
 std::size_t replace_all(std::string& inout, std::string_view what, std::string_view with);
 
+void TrimStartWhitespace(std::string& inout);
+
+void TrimEndWhitespace(std::string& inout);
 
 // Program arguments
 
