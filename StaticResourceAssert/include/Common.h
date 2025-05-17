@@ -4,13 +4,18 @@
 
 #include <iostream>
 #include <sstream>
-
+#include <string_view>
 
 extern const char* SRA_PROGRAM_VERSION;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+struct DirEntryInfo {
+	std::string path;
+	std::string fileContents;
+};
 
+////////////////////////////////////////////////////////////////////////
 
 void __pstream(const std::ostream &t, bool bNewline = true );
 
@@ -18,7 +23,9 @@ void __pstream(const std::ostream &t, bool bNewline = true );
 
 #define PSTREAM_NL( s ) __pstream( std::stringstream()<< s, true )
 
-std::size_t replace_all(std::string& inout, std::string_view what, std::string_view with);
+std::size_t ReplaceAll(std::string& inout, std::string_view what, std::string_view with);
+
+std::string_view RemoveExt(const std::string_view& in, const std::string_view& ext);
 
 void TrimStartWhitespace(std::string& inout);
 

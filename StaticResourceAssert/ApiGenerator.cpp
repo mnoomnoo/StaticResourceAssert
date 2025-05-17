@@ -6,12 +6,12 @@
 #include <fstream>
 #include <iomanip>
 
-std::string GenerateAPIHeaderString( const std::string_view& directoryCataloged, const std::vector<std::string>& arrayItems )
+std::string GenerateAPI_HeaderString( const std::string_view& directoryCataloged, const std::vector<DirEntryInfo>& arrayItems )
 {
 	if (arrayItems.empty())
 		return std::string();
 
-	std::ifstream inputFile("StaticResourceAssert/templates/static_resource_assert_api.ht");
+	std::ifstream inputFile("StaticResourceAssert/templates/static_resource_assert_api.h.template");
 	if(!inputFile) {
 		return std::string();
 	}
@@ -23,12 +23,12 @@ std::string GenerateAPIHeaderString( const std::string_view& directoryCataloged,
 
 	std::string arrayElements;
 
-	const uint64_t numOfItems = arrayItems.size();
+	const size_t numOfItems = arrayItems.size();
 	uint64_t counter = 0;
 
 	for( size_t c = 0; c < numOfItems; c++ )
 	{
-		const std::string str = arrayItems[c];
+		const std::string str = arrayItems[c].path;
 
 		// build the element
 		arrayElements += "u8\"";
@@ -45,9 +45,9 @@ std::string GenerateAPIHeaderString( const std::string_view& directoryCataloged,
 		}
 	}
 	// generate information about the generation
-    auto now = std::chrono::system_clock::now();
-    std::time_t now_time = std::chrono::system_clock::to_time_t(now);
-    std::tm local_tm = *std::localtime(&now_time);
+    const auto now = std::chrono::system_clock::now();
+    const std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+    const std::tm local_tm = *std::localtime(&now_time);
 
 	std::ostringstream oss;
 	oss << "SRA version: " << SRA_PROGRAM_VERSION << std::endl;
@@ -55,9 +55,9 @@ std::string GenerateAPIHeaderString( const std::string_view& directoryCataloged,
 	oss << "Directory cataloged: " << directoryCataloged << std::endl;
 	oss << "Number of items found: " << numOfItems << std::endl;
 
-	replace_all(headerString, "${ResourceFiles}", arrayElements);
-	replace_all(headerString, "${ArraySize}", std::to_string(numOfItems));
-	replace_all(headerString, "${GenerationComment}", oss.str());
+	ReplaceAll(headerString, "${ResourceFiles}", arrayElements);
+	ReplaceAll(headerString, "${ArraySize}", std::to_string(numOfItems));
+	ReplaceAll(headerString, "${GenerationComment}", oss.str());
 
     // Get the duration since the Unix epoch in milliseconds
     const auto duration = now.time_since_epoch();
@@ -65,7 +65,57 @@ std::string GenerateAPIHeaderString( const std::string_view& directoryCataloged,
     // Convert duration to milliseconds
     const auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
 
-	replace_all(headerString, "${ArrayID}", std::to_string(milliseconds));
+	ReplaceAll(headerString, "${ArrayID}", std::to_string(milliseconds));
 
 	return headerString;
 }
+
+std::string GenerateAPI_HeaderString(const std::string_view& outputHeaderName) {
+	if (outputHeaderName.empty())
+		return std::string();
+
+	std::ifstream inputFile("StaticResourceAssert/templates/static_resource_assert_api.cpp.template");
+	if(!inputFile) {
+		return std::string();
+	}
+
+	std::stringstream buffer;
+	buffer << inputFile.rdbuf();
+	std::string cppString = buffer.str();
+	inputFile.close();
+
+	ReplaceAll(cppString, "${IncludePath}", outputHeaderName);
+
+	return cppString;
+}
+
+std::string GenerateAPI_CMakeListsString( const std::string_view& projectName, const std::string_view& libraryName, const std::string_view& outputHeaderName)
+{
+	if (projectName.empty() || libraryName.empty() || outputHeaderName.empty())
+		return std::string();
+
+	std::ifstream inputFile("StaticResourceAssert/templates/CMakeLists.txt.template");
+	if(!inputFile) {
+		return std::string();
+	}
+
+	std::stringstream buffer;
+	buffer << inputFile.rdbuf();
+	std::string cmakeListsString = buffer.str();
+	inputFile.close();
+
+	ReplaceAll(cmakeListsString, "${CMakeProjectName}", projectName);
+	ReplaceAll(cmakeListsString, "${CMakeLibraryName}", libraryName);
+
+	std::string outputHeaderNameStr = outputHeaderName.data();
+	const std::string_view filename = RemoveExt(outputHeaderName.data(), ".h");
+	if (!filename.empty()) {
+		outputHeaderNameStr = filename;
+	}
+	outputHeaderNameStr += ".cpp";
+	ReplaceAll(cmakeListsString, "${CMakeLibrarySources}", outputHeaderNameStr);
+
+	return cmakeListsString;
+}
+
+

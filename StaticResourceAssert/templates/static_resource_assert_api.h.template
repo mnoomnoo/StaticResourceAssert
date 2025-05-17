@@ -5,6 +5,7 @@ ${GenerationComment}
 */
 
 #include <string_view>
+#include <cstdint>
 
 namespace sra {
 
@@ -31,10 +32,8 @@ constexpr bool __static_find(const std::string_view target) {
     return false;
 }
 
-} // namespace sra
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////// STATIC RESOURCE ASSERT API
+//////////////////////////////// SRA API
 
 #define STATIC_RESOURCE_ASSERT( s ) static_assert( sra::__static_find(u8 ## s) )
 
@@ -42,3 +41,12 @@ constexpr bool __static_find(const std::string_view target) {
 
 #define STATIC_RESOURCE_FIND( s ) sra::__static_find(u8 ## s)
 
+////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////// SRA CONTENTS API
+
+const uint8_t* find_content(const char* path);
+
+
+
+
+} // namespace sra

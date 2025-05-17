@@ -1,0 +1,9 @@
+
+#include "${IncludePath}"
+
+const uint8_t* find_content(const char* path) {
+    return NULL;
+}
+
+
+

@@ -22,7 +22,7 @@
 
 NOTE: 0.0.YYYYMMDD should only be in the main branch. Its a non-release version number
 */
-const char* SRA_PROGRAM_VERSION = "0.0.20250219";
+const char* SRA_PROGRAM_VERSION = "0.0.20250516";
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -50,7 +50,7 @@ void __pstream(const std::ostream &t, bool bNewline)
 	P( ss.str().c_str(), bNewline );
 }
 
-std::size_t replace_all(std::string& inout, std::string_view what, std::string_view with)
+std::size_t ReplaceAll(std::string& inout, std::string_view what, std::string_view with)
 {
 	std::size_t count{};
 	for (std::string::size_type pos{};
@@ -59,6 +59,14 @@ std::size_t replace_all(std::string& inout, std::string_view what, std::string_v
 		inout.replace(pos, what.length(), with.data(), with.length());
 	}
 	return count;
+}
+
+std::string_view RemoveExt(const std::string_view& in, const std::string_view& ext) {
+	const size_t pos = in.rfind(".h");
+	if ( std::string_view::npos != pos && pos == in.length() - 2) {
+		return in.substr(0, in.length() - 2);
+	}
+	return "";
 }
 
 void TrimStartWhitespace(std::string& inout) {

@@ -14,8 +14,75 @@ namespace fs = std::filesystem;
 constexpr const char* helpFile =
 "-d : Required. The directory to recursively search through and catalog entries\n"
 "-o : Name of the output api header. Always include the .h extention. Default is: static_resource_assert_api.h\n"
+"-odir : Output directory. Always add a '/' to the end of the directory path. Default is: sra_output/"
+"--c : Read file contents\n"
 "-h : Print version and command line options\n"
 ;
+
+////////////////////////////////////////////////////////////////////////
+
+bool OutputAPI_HeaderString(const std::string& outputDir, const std::string& outputHeaderName, const std::string& directoryStr, const std::vector<DirEntryInfo>& arrayItems) {
+	PSTREAM_NL( "Generating " << outputHeaderName << " ..." );
+
+	const std::string apiHeader = GenerateAPI_HeaderString(directoryStr, arrayItems);
+	if(apiHeader.empty()) {
+		PSTREAM_NL( "\tError: Failed to generate API header");
+		return false;
+	}
+
+	std::fstream file(outputDir + outputHeaderName, std::ios::trunc | std::ios::out);
+	if( file.is_open() )
+	{
+		file.write( apiHeader.c_str(), apiHeader.size() );
+		file.close();
+	}
+
+	PSTREAM_NL( "\tAPI header generated\n" );
+	return true;
+}
+
+bool OutputAPI_CppString(const std::string& outputDir, const std::string& outputHeaderName) {
+	const std::string_view filenameStrView = RemoveExt(outputHeaderName.data(), ".h");
+	std::string filename(filenameStrView);
+	filename += ".cpp";
+	PSTREAM_NL( "Generating "  << filename << " ..." );
+
+	const std::string apiCpp = GenerateAPI_HeaderString(outputHeaderName);
+	if(apiCpp.empty()) {
+		PSTREAM_NL( "\tError: Failed to generate API cpp");
+		return false;
+	}
+
+	std::fstream file(outputDir + filename, std::ios::trunc | std::ios::out);
+	if( file.is_open() )
+	{
+		file.write( apiCpp.c_str(), apiCpp.size() );
+		file.close();
+	}
+
+	PSTREAM_NL( "\tAPI cpp generated\n" );
+	return true;
+}
+
+bool OutputAPI_CMakeListsString(const std::string& outputDir, const std::string& outputHeaderName, const std::string& projectName, const std::string& libraryName) {
+	PSTREAM_NL( "Generating CMakeLists.txt ..." );
+
+	const std::string apiCMakeLists = GenerateAPI_CMakeListsString(projectName, libraryName, outputHeaderName);
+	if(apiCMakeLists.empty()) {
+		PSTREAM_NL( "\tError: Failed to generate API CMakeLists");
+		return false;
+	}
+
+	std::fstream file(outputDir + "CMakeLists.txt", std::ios::trunc | std::ios::out);
+	if( file.is_open() )
+	{
+		file.write( apiCMakeLists.c_str(), apiCMakeLists.size() );
+		file.close();
+	}
+
+	PSTREAM_NL( "\tAPI CMakeLists generated\n" );
+	return true;
+}
 
 ////////////////////////////////////////////////////////////////////////
 
@@ -40,22 +107,32 @@ int main( int argc, char** argv )
 	}
 
 	std::string directoryStr = GetArgData( "-d", argc, argv );
-	replace_all( directoryStr, "\\", "/" );
-	replace_all( directoryStr, "\\", "" );
-	replace_all( directoryStr, "<", "" );
-	replace_all( directoryStr, ">", "" );
-	replace_all( directoryStr, "\"", "" );
-	replace_all( directoryStr, "|", "" );
-	replace_all( directoryStr, "?", "" );
-	replace_all( directoryStr, "*", "" );
+	ReplaceAll( directoryStr, "\\", "/" );
+	ReplaceAll( directoryStr, "\\", "" );
+	ReplaceAll( directoryStr, "<", "" );
+	ReplaceAll( directoryStr, ">", "" );
+	ReplaceAll( directoryStr, "\"", "" );
+	ReplaceAll( directoryStr, "|", "" );
+	ReplaceAll( directoryStr, "?", "" );
+	ReplaceAll( directoryStr, "*", "" );
 
 	TrimStartWhitespace(directoryStr);
 	TrimEndWhitespace(directoryStr);
 
-	std::string outputHeaderStr = "static_resource_assert_api.h";
-	if( HasArg( "-o", argc, argv ) )
-	{
-		outputHeaderStr = GetArgData( "-o", argc, argv );
+	std::string outputHeaderName = "static_resource_assert_api.h";
+	if( HasArg( "-o", argc, argv ) ) {
+		outputHeaderName = GetArgData( "-o", argc, argv );
+	}
+
+	std::string outputDir = "sra_output/";
+	if( HasArg( "-odir", argc, argv ) ) {
+		outputDir = GetArgData( "-odir", argc, argv );
+	}
+	fs::create_directories(outputDir);
+
+	bool readContents = false;
+	if( HasArg( "--c", argc, argv ) ) {
+		readContents = true;
 	}
 
 	const fs::path dirPath { directoryStr };
@@ -69,37 +146,48 @@ int main( int argc, char** argv )
 	fs::directory_entry resourceDir(dirPath);
 
 	std::error_code ec;
-	std::vector<std::string> arrayItems;
+	std::vector<DirEntryInfo> arrayItems;
 	for( const fs::directory_entry& dirEntry : fs::recursive_directory_iterator{resourceDir, fs::directory_options::skip_permission_denied, ec} )
 	{
 		std::string pathPathStr = dirEntry.path().u8string();
 
-		replace_all( pathPathStr, "\\", "/" );
+		ReplaceAll( pathPathStr, "\\", "/" );
 
-		replace_all( pathPathStr, resourceDir.path().string() + "/", "" );
-		arrayItems.push_back( pathPathStr );
+		ReplaceAll( pathPathStr, resourceDir.path().string() + "/", "" );
+
+		DirEntryInfo dirEntryInfo;
+		dirEntryInfo.path = pathPathStr;
+
+		if(readContents) {
+			std::ifstream istrm(dirEntryInfo.path, std::ios::binary);
+			istrm >> dirEntryInfo.fileContents;
+			istrm.close();
+		}
+
+		arrayItems.push_back( dirEntryInfo );
 	}
 
-	std::sort(arrayItems.begin(), arrayItems.end());
+	std::sort(arrayItems.begin(), arrayItems.end()
+	, [](const DirEntryInfo& a, const DirEntryInfo& b) -> bool {
+		return a.path < b.path;
+	});
 
 	PSTREAM_NL( "Directory elements found: " << arrayItems.size() );
 
-	PSTREAM_NL( "Generating " << outputHeaderStr << " ..." );
-
-	const std::string apiHeader = GenerateAPIHeaderString(directoryStr, arrayItems);
-	if(apiHeader.empty()) {
-		PSTREAM_NL( "Error: Failed to generate API");
+	if(!OutputAPI_HeaderString(outputDir, outputHeaderName, directoryStr, arrayItems)) {
+		PSTREAM_NL( "API header failed to generate." );
 		return -3;
 	}
 
-	std::fstream file(outputHeaderStr, std::ios::trunc | std::ios::out);
-	if( file.is_open() )
-	{
-		file.write( apiHeader.c_str(), apiHeader.size() );
-		file.close();
+	if(!OutputAPI_CppString(outputDir, outputHeaderName)) {
+		PSTREAM_NL( "API cpp failed to generate." );
+		return -4;
 	}
 
-	PSTREAM_NL( "API Header generated\n" );
+	if(!OutputAPI_CMakeListsString(outputDir, outputHeaderName, "TestProjectName", "TestLibraryName")) {
+		PSTREAM_NL( "API CMakeLists.txt failed to generate." );
+		return -5;
+	}
 
 	return 0;
 }

@@ -1,0 +1,28 @@
+
+cmake_minimum_required(VERSION 3.20)
+
+project(
+    ${CMakeProjectName}
+)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+if(BUILD_SHARED_LIBS)
+	set( LIB_BUILD_TYPE SHARED )
+	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+else()
+	set( LIB_BUILD_TYPE STATIC )
+endif()
+
+add_library(
+    ${CMakeLibraryName}
+	${LIB_BUILD_TYPE}
+    ${CMakeLibrarySources}
+)
+
+
+
+
+
