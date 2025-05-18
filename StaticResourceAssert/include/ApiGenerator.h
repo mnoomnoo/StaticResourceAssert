@@ -8,7 +8,7 @@
 
 std::string GenerateAPI_HeaderString( const std::string_view& directoryCataloged, const std::vector<DirEntryInfo>& arrayItems );
 
-std::string GenerateAPI_HeaderString(const std::string_view& outputHeaderName);
+std::string GenerateAPI_CppString(const std::string_view& outputHeaderName, const std::vector<DirEntryInfo>& arrayItems);
 
 std::string GenerateAPI_CMakeListsString( const std::string_view& projectName, const std::string_view& libraryName, const std::string_view& outputHeaderName);
 

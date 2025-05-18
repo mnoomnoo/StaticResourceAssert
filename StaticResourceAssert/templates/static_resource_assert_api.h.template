@@ -44,7 +44,7 @@ constexpr bool __static_find(const std::string_view target) {
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////// SRA CONTENTS API
 
-const uint8_t* find_content(const char* path);
+const char* find_content(const char* path, size_t& contentSize);
 
 
 

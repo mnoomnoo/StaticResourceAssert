@@ -23,9 +23,19 @@ endif()
 target_include_directories(
     StaticResourceAssertUnitTests PUBLIC
     ../
+    sra_output
+)
+
+add_subdirectory(sra_output)
+
+target_link_directories(
+    StaticResourceAssertUnitTests PUBLIC
+    sra_output
 )
 
 target_link_libraries(
     StaticResourceAssertUnitTests
     Catch3
+    TestLibraryName
 )
+

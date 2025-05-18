@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <fstream>
 #include <algorithm>
+#include <cstdint>
 
 namespace fs = std::filesystem;
 
@@ -41,13 +42,13 @@ bool OutputAPI_HeaderString(const std::string& outputDir, const std::string& out
 	return true;
 }
 
-bool OutputAPI_CppString(const std::string& outputDir, const std::string& outputHeaderName) {
+bool OutputAPI_CppString(const std::string& outputDir, const std::string& outputHeaderName, const std::vector<DirEntryInfo>& arrayItems) {
 	const std::string_view filenameStrView = RemoveExt(outputHeaderName.data(), ".h");
 	std::string filename(filenameStrView);
 	filename += ".cpp";
 	PSTREAM_NL( "Generating "  << filename << " ..." );
 
-	const std::string apiCpp = GenerateAPI_HeaderString(outputHeaderName);
+	const std::string apiCpp = GenerateAPI_CppString(outputHeaderName, arrayItems);
 	if(apiCpp.empty()) {
 		PSTREAM_NL( "\tError: Failed to generate API cpp");
 		return false;
@@ -84,6 +85,10 @@ bool OutputAPI_CMakeListsString(const std::string& outputDir, const std::string&
 	return true;
 }
 
+////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////
 
 int main( int argc, char** argv )
@@ -153,20 +158,35 @@ int main( int argc, char** argv )
 
 		ReplaceAll( pathPathStr, "\\", "/" );
 
-		ReplaceAll( pathPathStr, resourceDir.path().string() + "/", "" );
+		const std::string resourceDirStr = resourceDir.path().string();
+		ReplaceAll( pathPathStr, resourceDirStr + "/", "" );
 
 		DirEntryInfo dirEntryInfo;
 		dirEntryInfo.path = pathPathStr;
 
 		if(readContents) {
-			std::ifstream istrm(dirEntryInfo.path, std::ios::binary);
-			istrm >> dirEntryInfo.fileContents;
-			istrm.close();
+			std::ifstream istrm(resourceDirStr + "/" + dirEntryInfo.path, std::ios::binary);
+			if( istrm.is_open() )
+			{
+				// get its size:
+				istrm.seekg(0, std::ios::end);
+				const size_t fileSize = istrm.tellg();
+				istrm.seekg(0, std::ios::beg);
+
+				if(0 != fileSize) {
+
+					dirEntryInfo.fileContents.resize(fileSize);
+					istrm.read(dirEntryInfo.fileContents.data(), fileSize);
+				}
+
+				istrm.close();
+			}
 		}
 
 		arrayItems.push_back( dirEntryInfo );
 	}
 
+	// sort all the items found
 	std::sort(arrayItems.begin(), arrayItems.end()
 	, [](const DirEntryInfo& a, const DirEntryInfo& b) -> bool {
 		return a.path < b.path;
@@ -179,7 +199,7 @@ int main( int argc, char** argv )
 		return -3;
 	}
 
-	if(!OutputAPI_CppString(outputDir, outputHeaderName)) {
+	if(!OutputAPI_CppString(outputDir, outputHeaderName, arrayItems)) {
 		PSTREAM_NL( "API cpp failed to generate." );
 		return -4;
 	}

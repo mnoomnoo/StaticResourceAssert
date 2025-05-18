@@ -2,7 +2,7 @@
 // unit test include
 #include "catch_amalgamated.hpp"
 
-#include "sra_output/static_resource_assert_api.h"
+#include "static_resource_assert_api.h"
 
 //////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////
@@ -15,10 +15,12 @@ TEST_CASE( "StaticResourceAssert Test" )
 		STATIC_REQUIRE(STATIC_RESOURCE_FIND("richText1.rtf"));
 		STATIC_REQUIRE(STATIC_RESOURCE_FIND("someText - Copy.txt"));
 		STATIC_REQUIRE(STATIC_RESOURCE_FIND("someText.txt"));
+		STATIC_REQUIRE(STATIC_RESOURCE_FIND("lib__UnitTestLibrary.a"));
 		STATIC_REQUIRE(STATIC_RESOURCE_FIND("subRes"));
 		STATIC_REQUIRE(STATIC_RESOURCE_FIND("subRes - Copy"));
 		STATIC_REQUIRE(STATIC_RESOURCE_FIND("subRes - Copy/someText2234.txt"));
 		STATIC_REQUIRE(STATIC_RESOURCE_FIND("subRes - Copy/texture134234.bmp"));
+		STATIC_REQUIRE(STATIC_RESOURCE_FIND("subRes - Copy/lib__UnitTestLibrary.a"));
 		STATIC_REQUIRE(STATIC_RESOURCE_FIND("subRes/Test"));
 		STATIC_REQUIRE(STATIC_RESOURCE_FIND("subRes/Test/Test - Copy"));
 		STATIC_REQUIRE(STATIC_RESOURCE_FIND("subRes/Test/Test - Copy/New Bitmap Image.bmp"));
@@ -45,10 +47,12 @@ TEST_CASE( "StaticResourceAssert Test" )
 		STATIC_RESOURCE_ASSERT("richText1.rtf");
 		STATIC_RESOURCE_ASSERT("someText - Copy.txt");
 		STATIC_RESOURCE_ASSERT("someText.txt");
+		STATIC_RESOURCE_ASSERT("lib__UnitTestLibrary.a");
 		STATIC_RESOURCE_ASSERT("subRes");
 		STATIC_RESOURCE_ASSERT("subRes - Copy");
 		STATIC_RESOURCE_ASSERT("subRes - Copy/someText2234.txt");
 		STATIC_RESOURCE_ASSERT("subRes - Copy/texture134234.bmp");
+		STATIC_RESOURCE_ASSERT("subRes - Copy/lib__UnitTestLibrary.a");
 		STATIC_RESOURCE_ASSERT("subRes/Test");
 		STATIC_RESOURCE_ASSERT("subRes/Test/Test - Copy");
 		STATIC_RESOURCE_ASSERT("subRes/Test/Test - Copy/New Bitmap Image.bmp");
@@ -61,5 +65,23 @@ TEST_CASE( "StaticResourceAssert Test" )
 		STATIC_RESOURCE_ASSERT("πfs.c");
 		STATIC_RESOURCE_ASSERT("こんにちは世界.txt");
 	};
+
+	SECTION( "find_content 1" )
+	{
+		size_t contentSize = 0;
+		const char* content = sra::find_content("richText1 - Copy.rtf", contentSize);
+		REQUIRE(18 == contentSize);
+		REQUIRE(0 == std::strcmp("This is some text!", content));
+
+
+		content = sra::find_content("subRes - Copy/someText2234.txt", contentSize);
+		REQUIRE(10 == contentSize);
+		REQUIRE(0 == std::strcmp("1231321321", content));
+
+		content = sra::find_content("subRes/someText2234.txt", contentSize);
+		REQUIRE(29 == contentSize);
+
+
+	}
 }
 

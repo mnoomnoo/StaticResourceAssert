@@ -70,7 +70,7 @@ std::string GenerateAPI_HeaderString( const std::string_view& directoryCataloged
 	return headerString;
 }
 
-std::string GenerateAPI_HeaderString(const std::string_view& outputHeaderName) {
+std::string GenerateAPI_CppString(const std::string_view& outputHeaderName, const std::vector<DirEntryInfo>& arrayItems) {
 	if (outputHeaderName.empty())
 		return std::string();
 
@@ -84,7 +84,36 @@ std::string GenerateAPI_HeaderString(const std::string_view& outputHeaderName) {
 	std::string cppString = buffer.str();
 	inputFile.close();
 
+	const size_t numOfItems = arrayItems.size();
+
 	ReplaceAll(cppString, "${IncludePath}", outputHeaderName);
+	ReplaceAll(cppString, "${ArraySize}", std::to_string(numOfItems));
+
+	std::string fileContent;
+	uint64_t counter = 0;
+	for( size_t c = 0; c < numOfItems; c++ )
+	{
+		const std::string path = arrayItems[c].path;
+		const std::string contents = arrayItems[c].fileContents;
+
+		// build the element
+		fileContent += "std::pair(\"";
+		fileContent += path + "\",";
+		fileContent += "std::string_view( R\"###(";
+		fileContent += contents;
+		fileContent += ")###\", " + std::to_string(contents.size()) + "))";
+
+		// add comma iff we're not at the end of the array
+		if( c < numOfItems-1 )
+			fileContent += ",";
+
+		counter++;
+		if(0 == (counter % 5)) {
+			fileContent += "\n";
+		}
+	}
+
+	ReplaceAll(cppString, "${FileContent}", fileContent);
 
 	return cppString;
 }

@@ -1,9 +1,28 @@
 
 #include "${IncludePath}"
 
-const uint8_t* find_content(const char* path) {
+#include <utility>
+#include <cstring>
+
+namespace sra {
+
+typedef std::pair<std::string_view,std::string_view> arr_element;
+
+constexpr size_t __content_array_size = ${ArraySize};
+constexpr const arr_element __content_array[__content_array_size] = {
+	${FileContent}
+};
+
+const char* find_content(const char* path, size_t& contentSize) {
+    contentSize = SIZE_MAX;
+    for(size_t i = 0; i < __content_array_size; i++) {
+        if(0 == strcmp(path, __content_array[i].first.data())) {
+            contentSize = __content_array[i].second.length();
+            return __content_array[i].second.data();
+        }
+    }
     return NULL;
 }
 
-
+} // namespace sra
 
