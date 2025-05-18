@@ -81,7 +81,10 @@ TEST_CASE( "StaticResourceAssert Test" )
 		content = sra::find_content("subRes/someText2234.txt", contentSize);
 		REQUIRE(29 == contentSize);
 
-
+		content = sra::find_content("subRes - Copy/lib__UnitTestLibrary.a", contentSize);
+		REQUIRE(16290 == contentSize);
+		std::string_view ct(content);
+		REQUIRE("!<arch>" == ct.substr(0, 7));
 	}
 }
 
