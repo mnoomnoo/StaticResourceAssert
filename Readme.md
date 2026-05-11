@@ -1,5 +1,5 @@
 # StaticResourceAssert
-StaticResourceAssert (sra) generates a header file containing an API that allows for statically asserting the existence of a directory or file.
+Static Resource Assert generates a header file containing an API that allows for statically asserting the structure of a directory or the existence of a file.
 
 The API is updated only when StaticResourceAssert runs, so any changes to the filesystem after the header is generated cannot be statically asserted.
 
